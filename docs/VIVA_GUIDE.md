@@ -8,8 +8,7 @@ and participation, NORMALIZATION.md for the formal dependency proof,
 DATABASE_CONCEPTS.md for implementation locations, and TRANSACTIONS.md for locks.
 
 Suggested walkthrough: Overview counts → create a department/employee → schedule
-a future session → enroll → cancel/reactivate → inspect Audit logs → Reports →
-DBMS demonstrations. Use seeded past completions to inspect evaluations; new results require a completed enrollment without an existing result.
+a future session → enroll → cancel/reactivate → inspect Audit logs → Reports. Use seeded past completions to inspect evaluations; new results require a completed enrollment without an existing result.
 future training cannot be marked completed before its end date. Show the actual
 migration functions and triggers, then run test:db for the two-client race.
 

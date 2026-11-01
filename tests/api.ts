@@ -8,6 +8,10 @@ const invalidProgram=await request('/api/programs','POST',{title:'Invalid test',
 const results=await request('/api/results');if(results.data.length)assert.equal(typeof results.data[0].employee_name,'string');
 const marker='API test '+crypto.randomUUID();const d=await request('/api/departments','POST',{department_name:marker,location:'Before'});assert.equal(d.status,201);const id=d.data.department_id;
 try{assert.equal((await request('/api/departments','PATCH',{id,location:'After'})).status,200);const rows=await request('/api/departments');assert.equal(rows.data.find((r:{department_id:number})=>r.department_id===id).location,'After');assert.equal((await request('/api/departments','POST',{department_name:marker})).status,400);console.log('PASS CRUD persistence and readable unique violation');}finally{assert.equal((await request('/api/departments','DELETE',{id})).status,200);}
-for(let demo=1;demo<=8;demo++){const r=await request('/api/demos','POST',{demo});assert.equal(r.status,200);assert.equal(r.data.ok,true,JSON.stringify(r.data));assert.equal(r.data.rolledBack,true);if(demo===8)assert.equal(r.data.remaining,0);console.log('PASS demo',demo);}
 assert.equal((await request('/api/audit','POST',{})).status,405);console.log('PASS audit API is read-only');
-for(const path of ['','departments','employees','trainers','programs','sessions','enrollments','results','reports','audit','demos']){const r=await fetch(base+'/'+path);assert.equal(r.status,200,path);console.log('PASS page',path||'dashboard');}
+for(const path of ['','departments','employees','trainers','programs','sessions','enrollments','results','reports','audit']){const r=await fetch(base+'/'+path);assert.equal(r.status,200,path);console.log('PASS page',path||'dashboard');}
+// Removed demonstration URLs must not expose executable features.
+assert.equal((await fetch(base+'/demos')).status,404);
+assert.equal((await fetch(base+'/api/demos')).status,404);
+assert.equal((await request('/api/demos','POST',{demo:1})).status,405);
+console.log('PASS removed page and demonstration operations are unavailable');

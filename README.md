@@ -33,7 +33,7 @@ persistent named volume. Do not run compose down --volumes unless intentionally
 discarding the lab database. If port 5432 is occupied, change the host port and URL.
 
 For Neon use its direct connection URL (with sslmode=require); transaction-pooling
-connections are unsuitable for the multi-statement demos/tests. Create an empty
+connections are unsuitable for the multi-statement database tests. Create an empty
 database, set DATABASE_URL in .env, and run the same migration/seed commands.
 Use a direct connection for migrations. Never commit credentials.
 
@@ -42,7 +42,6 @@ Use a direct connection for migrations. Never commit credentials.
 `DATABASE_URL` is required, for example
 `postgresql://etms:etms_local_password@localhost:5432/etms?schema=public`.
 The app uses public schema; the pg helper removes Prisma's schema query parameter.
-`ENABLE_DBMS_DEMOS=true` enables the fixed rollback-only demonstrations.
 `TEST_BASE_URL` optionally changes the API test server (default port 3000).
 This is a local admin lab: run on the loopback interface as supplied.
 
@@ -67,7 +66,7 @@ PostgreSQL CURRENT_DATE; future sessions naturally become ineligible over time.
 ## Application
 
 Sidebar pages: dashboard, departments, employees, trainers, programs, sessions,
-enrollments, results, reports, audit, DBMS demonstrations. Core catalog pages
+enrollments, results, reports and audit logs. Core catalog pages
 provide add/edit/delete with database-protected history. Employees support name
 and department filters; enrollments support employee/session filters. Sessions
 show occupied and available seats. Enrollments use enroll_employee, including
@@ -79,7 +78,7 @@ Audit logs show the newest 200 records and JSONB snapshots; no write API exists.
 APIs: GET/POST/PATCH/DELETE `/api/{resource}` for allowlisted catalog resources;
 enrollment POST books/reactivates and PATCH cancels/completes; results POST records;
 audit GET only. `/api/dashboard`, `/api/reports`, `/api/session-detail` are read-only.
-`/api/demos` accepts only eight numbered, predefined operations, never arbitrary SQL.
+The application exposes no demonstration page or arbitrary SQL execution endpoint.
 
 ## Verification
 
@@ -87,7 +86,7 @@ audit GET only. `/api/dashboard`, `/api/reports`, `/api/session-detail` are read
 npm run typecheck
 npm run build
 npm run test:db
-# With npm run dev or npm start running and ENABLE_DBMS_DEMOS=true:
+# With npm run dev or npm start running:
 npm run test:api
 ```
 
@@ -95,8 +94,8 @@ Database tests create a randomly named isolated schema, apply the authoritative
 migration, and drop only that schema in finally. The connection needs CREATE
 SCHEMA permission. They verify columns, constraints, CRUD, functions, triggers,
 views, audit JSONB, rollback, transitions, and two independent-connection races.
-API tests create/delete one isolated department, run all eight rollback-only demos,
-read all pages/endpoints, and verify audit writes are rejected. Use a lab database.
+API tests create/delete one isolated department, read the application pages and
+endpoints, verify audit writes are rejected and check removed URLs are unavailable. Use a lab database.
 See docs/VERIFICATION.md for checks actually run during implementation.
 
 SQL demonstrations: `sql/reports.sql` (17 queries), `sql/transaction_demo.sql`
@@ -128,8 +127,8 @@ remain counted. Enrollment deletion is rejected: cancel instead to retain histor
 Database unavailable: confirm PostgreSQL is running, URL credentials/port are
 correct, and migrations were applied. Foreign-key deletion errors mean related
 history must be retained. Started/full session booking errors are expected rules.
-Completion before end date is rejected. Demo SQLSTATE 23505/23503/23514 responses
-are expected proof of constraints. Identity gaps after failed inserts are normal.
+Completion before end date is rejected. SQLSTATE 23505/23503/23514 responses
+identify unique, foreign-key or CHECK/trigger violations. Identity gaps after failed inserts are normal.
 If Prisma engines are blocked during installation, allow Prisma's engine download
 and run `npm run db:generate`. An unconfigured nvm launcher must be set to a
 supported Node version before running npm commands.

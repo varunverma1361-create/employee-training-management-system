@@ -36,9 +36,9 @@ against a capacity reduction: the reduction waits, then fails.
 
 ## Atomicity
 Functions execute inside the caller's transaction. A failure rolls back the
-enrollment and its audit row. The demo API begins a transaction, inserts dedicated
-fixtures and deliberately violates a CHECK; ROLLBACK removes every fixture.
-Demo 8 verifies its inserted department count is zero afterward. Identity sequences
+enrollment and its audit row. The database tests begin a transaction, insert
+dedicated fixtures and verify that ROLLBACK removes them and their audit records.
+The SQL transaction script also demonstrates recovery from a CHECK violation. Identity sequences
 are nontransactional and may have gaps; gaps are expected.
 
 ## Consistency
@@ -51,7 +51,7 @@ completion and are at most one per enrollment.
 ## Isolation
 Row locks and the shared guard serialize conflicting operations; MVCC lets
 readers use committed snapshots. A transaction sees its own writes. Changes
-to multiple records in seed/demo operations commit or roll back together.
+to multiple records in seed/test operations commit or roll back together.
 
 ## Durability
 PostgreSQL's WAL persists successful commits under normal synchronous_commit
@@ -59,5 +59,5 @@ settings. Docker's named volume survives container restarts. Crash recovery is
 an architectural explanation, not a crash test performed by this project.
 
 See `sql/transaction_demo.sql` for BEGIN, SAVEPOINT, ROLLBACK and COMMIT examples.
-Viva demos intentionally roll back even successful operations. Normal CRUD and
-enrollment operations commit and persist. Audit logs contain only committed changes.
+The application exposes normal CRUD and enrollment operations that commit and
+persist. Audit logs contain only committed changes; test rollbacks leave no records.

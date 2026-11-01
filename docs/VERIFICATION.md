@@ -1,5 +1,20 @@
 # Verification record
 
+## Current application update
+
+The runtime demonstration page, sidebar link, API and enable flag have been
+removed. The UI uses training administration wording throughout. Database test
+fixtures now live in tests/fixtures.ts and are not part of the application.
+
+Validation of this update: strict TypeScript check passed; production webpack
+build passed in a separate workspace copy to preserve the running development
+server; all 20 database check groups passed; 25 HTTP check groups passed,
+including CRUD and confirmation that the removed URLs cannot execute operations.
+The dashboard was also inspected in the browser without the removed sidebar link.
+
+The record below describes the original implementation before this update;
+its demonstration-page checks and screenshot are historical evidence only.
+
 Executed during implementation on Windows using bundled Node.js 24.22.1,
 Next.js 16.4.3, Prisma 6.19.0, and a real workspace-local PostgreSQL 17.10
 server. The portable binary package is a verification tool, not an application

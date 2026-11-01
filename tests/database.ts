@@ -1,4 +1,4 @@
-import 'dotenv/config';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {Pool,PoolClient} from 'pg';import {fixture} from '../src/lib/demo';
+import 'dotenv/config';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {Pool,PoolClient} from 'pg';import {fixture} from './fixtures';
 const url=new URL(process.env.DATABASE_URL!);url.searchParams.delete('schema');
 const admin=new Pool({connectionString:url.toString()});const schema='etms_test_'+crypto.randomUUID().replaceAll('-','');
 // Only this generated schema is created/dropped. Public data is never touched.

@@ -18,7 +18,7 @@ this database: Prisma alone cannot recreate CHECKs, views, functions and trigger
 | JSONB | to_jsonb(OLD/NEW) audit snapshots |
 | Views and joins | Three SQL views, API reports route |
 | Subqueries and grouping | department view; 17 queries in sql/reports.sql |
-| Transactions | Seed transaction, rollback-only demos, two-client tests |
+| Transactions | Seed transaction, rollback assertions, two-client tests |
 | Concurrency | Advisory lock followed by FOR UPDATE; see TRANSACTIONS.md |
 | Indexes | Five secondary FK/date indexes plus PK/UNIQUE indexes |
 | ORM vs SQL | Prisma for CRUD; parameterized pg queries for functions/views |
