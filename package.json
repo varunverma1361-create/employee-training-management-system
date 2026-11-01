@@ -1,0 +1,40 @@
+{
+  "name": "employee-training-management",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack --hostname 127.0.0.1",
+    "build": "prisma generate && next build --webpack",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
+    "test:db": "tsx tests/database.ts",
+    "test:api": "tsx tests/api.ts",
+    "sql:export": "node scripts/export-sql.mjs"
+  },
+  "dependencies": {
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "@prisma/client": "6.19.0",
+    "pg": "^8.16.3",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "prisma": "6.19.0",
+    "typescript": "^5.9.3",
+    "tsx": "^4.20.6",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/pg": "^8.15.5",
+    "tailwindcss": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.17"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "type": "module"
+}

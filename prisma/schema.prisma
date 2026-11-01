@@ -1,0 +1,90 @@
+generator client {
+ provider = "prisma-client-js"
+}
+datasource db {
+ provider = "postgresql"
+ url = env("DATABASE_URL")
+}
+
+model department {
+ department_id Int @id @default(autoincrement())
+ department_name String @unique @db.VarChar(100)
+ location String? @db.VarChar(100)
+employees employee[]
+}
+
+model employee {
+ employee_id Int @id @default(autoincrement())
+ employee_name String @db.VarChar(100)
+ email String @unique @db.VarChar(150)
+ department_id Int
+ designation String? @db.VarChar(100)
+ joining_date DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+department department @relation(fields: [department_id], references: [department_id], onDelete: Restrict, onUpdate: Restrict)
+enrollments enrollment[]
+@@index([department_id])
+}
+
+model trainer {
+ trainer_id Int @id @default(autoincrement())
+ trainer_name String @db.VarChar(100)
+ email String @unique @db.VarChar(150)
+ specialization String? @db.VarChar(150)
+sessions training_session[]
+}
+
+model training_program {
+ program_id Int @id @default(autoincrement())
+ title String @db.VarChar(150)
+ description String?
+ duration_hours Int
+sessions training_session[]
+}
+
+model training_session {
+ session_id Int @id @default(autoincrement())
+ program_id Int
+ trainer_id Int
+ start_date DateTime @db.Date
+ end_date DateTime @db.Date
+ capacity Int
+program training_program @relation(fields: [program_id], references: [program_id], onDelete: Restrict, onUpdate: Restrict)
+trainer trainer @relation(fields: [trainer_id], references: [trainer_id], onDelete: Restrict, onUpdate: Restrict)
+enrollments enrollment[]
+@@index([program_id])
+@@index([trainer_id])
+@@index([start_date])
+}
+
+model enrollment {
+ enrollment_id Int @id @default(autoincrement())
+ employee_id Int
+ session_id Int
+ enrollment_date DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+ status String @default("Enrolled") @db.VarChar(20)
+employee employee @relation(fields: [employee_id], references: [employee_id], onDelete: Restrict, onUpdate: Restrict)
+session training_session @relation(fields: [session_id], references: [session_id], onDelete: Restrict, onUpdate: Restrict)
+result training_result?
+@@unique([employee_id, session_id])
+@@index([session_id])
+}
+
+model training_result {
+ result_id Int @id @default(autoincrement())
+ enrollment_id Int @unique
+ score Decimal @db.Decimal(5, 2)
+ completion_status String @db.VarChar(20)
+ feedback String?
+enrollment enrollment @relation(fields: [enrollment_id], references: [enrollment_id], onDelete: Restrict, onUpdate: Restrict)
+}
+
+model audit_log {
+ log_id BigInt @id @default(autoincrement())
+ table_name String @db.VarChar(100)
+ record_id Int
+ operation String @db.VarChar(10)
+ old_data Json? @db.JsonB
+ new_data Json? @db.JsonB
+ changed_at DateTime? @default(now()) @db.Timestamptz(6)
+
+}

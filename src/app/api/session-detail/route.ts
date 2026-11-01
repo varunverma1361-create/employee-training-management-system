@@ -1,0 +1,2 @@
+import {NextRequest,NextResponse} from 'next/server';import {prisma,serialize} from '@/lib/db';import {readable} from '@/lib/errors';
+export async function GET(req:NextRequest){try{const row=await prisma.training_session.findUnique({where:{session_id:Number(req.nextUrl.searchParams.get('id'))}});return NextResponse.json(row?serialize(row):{error:'Session not found'},{status:row?200:404});}catch(e){return NextResponse.json({error:readable(e)},{status:400});}}

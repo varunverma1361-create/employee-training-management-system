@@ -1,0 +1,13 @@
+import 'dotenv/config';import assert from 'node:assert/strict';
+const base=process.env.TEST_BASE_URL??'http://127.0.0.1:3000';
+async function request(path:string,method='GET',body?:unknown){const r=await fetch(base+path,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});return {status:r.status,data:await r.json()};}
+for(const path of ['dashboard','departments','employees','trainers','programs','sessions','enrollments','results','reports','audit']){const r=await request('/api/'+path);assert.equal(r.status,200,path);console.log('PASS GET',path);}
+const sessions=await request('/api/sessions');const occupied=sessions.data.find((r:{active_enrollments:string;capacity:number})=>Number(r.active_enrollments)>1);
+if(occupied){const reduced=await request('/api/sessions','PATCH',{id:occupied.session_id,capacity:1});assert.equal(reduced.status,400);assert.match(reduced.data.error,/occupied seats/);console.log('PASS readable capacity trigger rejection through Prisma');}
+const invalidProgram=await request('/api/programs','POST',{title:'Invalid test',duration_hours:0});assert.equal(invalidProgram.status,400);assert.match(invalidProgram.data.error,/greater than zero/);console.log('PASS readable CHECK rejection through Prisma');
+const results=await request('/api/results');if(results.data.length)assert.equal(typeof results.data[0].employee_name,'string');
+const marker='API test '+crypto.randomUUID();const d=await request('/api/departments','POST',{department_name:marker,location:'Before'});assert.equal(d.status,201);const id=d.data.department_id;
+try{assert.equal((await request('/api/departments','PATCH',{id,location:'After'})).status,200);const rows=await request('/api/departments');assert.equal(rows.data.find((r:{department_id:number})=>r.department_id===id).location,'After');assert.equal((await request('/api/departments','POST',{department_name:marker})).status,400);console.log('PASS CRUD persistence and readable unique violation');}finally{assert.equal((await request('/api/departments','DELETE',{id})).status,200);}
+for(let demo=1;demo<=8;demo++){const r=await request('/api/demos','POST',{demo});assert.equal(r.status,200);assert.equal(r.data.ok,true,JSON.stringify(r.data));assert.equal(r.data.rolledBack,true);if(demo===8)assert.equal(r.data.remaining,0);console.log('PASS demo',demo);}
+assert.equal((await request('/api/audit','POST',{})).status,405);console.log('PASS audit API is read-only');
+for(const path of ['','departments','employees','trainers','programs','sessions','enrollments','results','reports','audit','demos']){const r=await fetch(base+'/'+path);assert.equal(r.status,200,path);console.log('PASS page',path||'dashboard');}
